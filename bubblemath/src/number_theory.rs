@@ -126,7 +126,7 @@ fn find_factor_general(n: u64, init: u64, offset: u64) -> Option<u64> {
 }
 
 fn find_factor(n: u64) -> u64 {
-    [(2, 1), (2, n-1), (3, 1)].iter().filter_map(|&(init, offset)| find_factor_general(n, init, offset))
+    [(2, 1), (2, n-1), (3, 1), (3, 2)].iter().filter_map(|&(init, offset)| find_factor_general(n, init, offset))
     .next().expect(&format!("Failed to find a non-trivial factor of {}!", n))
 }
 
@@ -176,6 +176,66 @@ pub fn nth_prime(n: u64) -> u64 {
     x
 }
 
+use std::collections::BinaryHeap;
+use std::iter::Iterator;
+
+#[derive(PartialEq, Eq, Default, Debug)]
+struct PythagoreanTriplet(u64, u64, u64);
+impl PartialOrd for PythagoreanTriplet {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for PythagoreanTriplet {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        // for use in max heap, compare c, a, then b in reverse
+        (other.2, other.0, other.1).cmp(&(self.2, self.0, self.1))
+    }
+}
+
+/// An iterator that infinitely generates all primitive Pythagorean triplets.
+/// 
+/// See https://en.wikipedia.org/wiki/Tree_of_primitive_Pythagorean_triples for details.
+/// This can also be used to generate any Pythagorean-like triplets in the form of a^2 + b^2 = c^2 + k,
+/// by giving a suitable initial triple.
+/// This iterator internally uses a BinaryHeap of a 3-tuple (a, b, c) with custom sorting order,
+/// namely the inverted order of (c, a, b).
+/// Therefore, in order to get a useful result, it is recommended to cut the iterator
+/// with a condition on c (e.g. using take_while), and then do more computation on it.
+/// Also note that the heap will contain 2n+1 items after n items are produced.
+pub struct PythagoreanTripletGenerator {
+    heap: BinaryHeap<PythagoreanTriplet>,
+}
+impl Iterator for PythagoreanTripletGenerator {
+    type Item = (u64, u64, u64);
+    fn next(&mut self) -> Option<(u64, u64, u64)> {
+        let ret = self.heap.pop().unwrap();
+        let PythagoreanTriplet(a, b, c) = ret;
+        self.heap.push(PythagoreanTriplet(a + 2 * c - 2 * b, 2 * a + 2 * c - b, 2 * a + 3 * c - 2 * b));
+        self.heap.push(PythagoreanTriplet(a + 2 * c + 2 * b, 2 * a + 2 * c + b, 2 * a + 3 * c + 2 * b));
+        self.heap.push(PythagoreanTriplet(2 * b + 2 * c - a, b + 2 * c - 2 * a, 2 * b + 3 * c - 2 * a));
+        Some((a, b, c))
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (usize::MAX, None)
+    }
+}
+
+/// Creates a Pythagorean-like triplet generator with a custom starting triple.
+/// 
+/// It is guaranteed that all triples emitted share the value of a^2 + b^2 - c^2.
+/// Also, if gcd(a, b, c) = 1, such a property is preserved across all triples.
+pub fn pythagorean_like_triples(a: u64, b: u64, c: u64) -> PythagoreanTripletGenerator {
+    let mut heap: BinaryHeap<_> = BinaryHeap::new();
+    heap.push(PythagoreanTriplet(a, b, c));
+    PythagoreanTripletGenerator { heap }
+}
+
+/// Creates a Pythagorean triplet generator with the starting triple of (3, 4, 5).
+pub fn pythagorean_triples() -> PythagoreanTripletGenerator {
+    pythagorean_like_triples(3, 4, 5)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,20 +252,16 @@ mod tests {
     #[test]
     fn factorization() {
         // corner cases test
-        let fac = factorize(3486784401);
-        assert_eq!(fac, vec![3; 20]);
-        let fac = factorize(95367431640625);
-        assert_eq!(fac, vec![5; 20]);
+        assert_eq!(factorize(3486784401), vec![3; 20]);
+        assert_eq!(factorize(95367431640625), vec![5; 20]);
+        assert_eq!(factorize(5371), vec![41, 131]);
         for x in (2..2000).filter(|&x| is_prime(x)) {
             assert_eq!(factorize(x * x), vec![x, x]);
             assert_eq!(factorize(x * x * x), vec![x, x, x]);
         }
         // speed test
-        let fac = factorize(600851475143);
-        assert_eq!(fac, vec![71, 839, 1471, 6857]);
-        let fac = factorize(123098432789);
-        assert_eq!(fac, vec![132137, 931597]);
-        let fac = factorize(122233569105639659);
-        assert_eq!(fac, vec![123789241, 987432899]);
+        assert_eq!(factorize(600851475143), vec![71, 839, 1471, 6857]);
+        assert_eq!(factorize(123098432789), vec![132137, 931597]);
+        assert_eq!(factorize(122233569105639659), vec![123789241, 987432899]);
     }
 }

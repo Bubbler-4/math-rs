@@ -20,9 +20,17 @@ A collection of mathematical algorithms in Rust
     * Integer factorization (Pollard's rho)
     * Next prime, n-th prime
     * Jacobi symbol
+    * Iterator over Pythagorean triplets
 
 ## Misc
 
 ![](https://projecteuler.net/profile/Bubbler.png)
 
-Re-solved 7 problems so far.
+Rust solution progress:
+
+* Level `5%`
+    * 1-11 (revisiting early problems)
+* Level `45%`
+    * 654 (used Berlekamp-Massey and n-th term acceleration, will include in the library later)
+* Level `75%`
+    * 224 (solvable without any specific mathy algorithm)
