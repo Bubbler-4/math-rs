@@ -236,6 +236,35 @@ pub fn pythagorean_triples() -> PythagoreanTripletGenerator {
     pythagorean_like_triples(3, 4, 5)
 }
 
+fn extended_gcd(a: u64, b: u64) -> (u64, u64, u64) {
+    // returns (gcd, x, y) so that ax + by = gcd.
+    let (mut old_r, mut r) = (a as i64, b as i64);
+    let (mut old_s, mut s) = (1, 0);
+    let (mut old_t, mut t) = (0, 1);
+    while r != 0 {
+        let q = old_r.div_euclid(r);
+        let (temp_r, temp_s, temp_t) = (r, s, t);
+        r = old_r - q * r;
+        s = old_s - q * s;
+        t = old_t - q * t;
+        old_r = temp_r;
+        old_s = temp_s;
+        old_t = temp_t;
+    }
+    let gcd = old_r.abs();
+    let a_coeff = old_s.rem_euclid(s.abs());
+    let b_coeff = old_t.rem_euclid(t.abs());
+    (gcd as u64, a_coeff as u64, b_coeff as u64)
+}
+
+pub fn chinese_remainder(a1: u64, m1: u64, a2: u64, m2: u64) -> u64 {
+    let (gcd, n1, n2) = extended_gcd(m1, m2);
+    if gcd != 1 {
+        panic!("m1 and m2 are not coprime");
+    }
+    (a1 * n2 % m1 * m2 + a2 * n1 % m2 * m1) % (m1 * m2)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

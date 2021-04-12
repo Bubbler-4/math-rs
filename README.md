@@ -21,6 +21,10 @@ A collection of mathematical algorithms in Rust
     * Next prime, n-th prime
     * Jacobi symbol
     * Iterator over Pythagorean triplets
+    * Chinese remainder theorem for two moduli
+* Linear recurrence
+    * n-th term calculation (faster than matrix exponentiation by squaring)
+    * Berlekamp-Massey algorithm (identifying linear recurrence modulo prime)
 
 ## Misc
 
@@ -28,9 +32,5 @@ A collection of mathematical algorithms in Rust
 
 Rust solution progress:
 
-* Level `5%`
-    * 1-11 (revisiting early problems)
-* Level `45%`
-    * 654 (used Berlekamp-Massey and n-th term acceleration, will include in the library later)
-* Level `75%`
-    * 224 (solvable without any specific mathy algorithm)
+* 1-16 (revisiting early problems)
+* 224, 258, 654
