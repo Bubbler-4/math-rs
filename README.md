@@ -2,7 +2,7 @@
 
 ![Crates.io](https://img.shields.io/crates/v/bubblemath)
 
-A collection of mathematical algorithms in pure Rust
+A collection of mathematical algorithms in pure Rust. Documentation is available on [Docs.rs](https://docs.rs/bubblemath/0.1.0/bubblemath/).
 
 ## Notes
 
@@ -11,7 +11,7 @@ A collection of mathematical algorithms in pure Rust
 * Please open an issue (or a pull request if applicable) if:
     * you know of a better implementation of an algorithm included in my library,
     * you want to optimize my library code further,
-    * you have any other suggestions :)
+    * or you have any other suggestions :)
 
 ## Contents
 
@@ -32,5 +32,5 @@ A collection of mathematical algorithms in pure Rust
 
 Rust solution progress:
 
-* 1-16 (revisiting early problems)
+* 1-20 (revisiting early problems)
 * 224, 258, 654
