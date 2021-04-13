@@ -1,16 +1,16 @@
 # Bubblemath
 
+![Crates.io](https://img.shields.io/crates/v/bubblemath)
+
 A collection of mathematical algorithms in pure Rust
 
 ## Notes
 
 * I'm collecting the algorithms used while solving Project Euler problems.
 * I won't publish my PE solutions directly, although it's being worked on side-by-side with the library.
-* I will publish this library to crates.io when I feel it's ready.
 * Please open an issue (or a pull request if applicable) if:
     * you know of a better implementation of an algorithm included in my library,
     * you want to optimize my library code further,
-    * you want the library published ASAP, or
     * you have any other suggestions :)
 
 ## Contents
