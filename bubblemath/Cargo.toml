@@ -3,8 +3,13 @@ name = "bubblemath"
 version = "0.1.0"
 authors = ["Bubbler-4 <bubbler9903@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A collection of mathematical algorithms in pure Rust."
+license = "MIT"
+homepage = "https://github.com/Bubbler-4/math-rs"
+repository = "https://github.com/Bubbler-4/math-rs"
+readme = "README.md"
+keywords = ["math", "mathematics"]
+categories = ["algorithms", "mathematics"]
 
 [dependencies]
 num = "0.4.0"

@@ -22,7 +22,7 @@ pub fn pow_mod(n: u64, mut p: u64, m: u64) -> u64 {
 
 /// Jacobi symbol `(a/n)`. The value is one of `-1, 0, 1`, which is represented as respective `Sign`.
 /// 
-/// Implements the algorithm from https://en.wikipedia.org/wiki/Jacobi_symbol.
+/// Implements the algorithm from [Wikipedia: Jacobi symbol](https://en.wikipedia.org/wiki/Jacobi_symbol).
 pub fn jacobi_symbol(mut a: u64, mut n: u64) -> Sign {
     if gcd(a, n) != 1 { return Sign::NoSign; }
     let mut cur_sign = Sign::Plus;
@@ -46,7 +46,7 @@ pub fn jacobi_symbol(mut a: u64, mut n: u64) -> Sign {
 /// 
 /// `n = d * 2^s + 1` (`d` is odd) is a strong Fermat probable prime if
 /// `2^d == 1 mod n` or `2^(d * 2^r) == -1 mod n` for some `0 <= r < s`.
-/// Refer to https://en.wikipedia.org/wiki/Strong_pseudoprime for details.
+/// Refer to [Wikipedia: Strong pseudoprime](https://en.wikipedia.org/wiki/Strong_pseudoprime) for details.
 pub fn is_strong_probable_prime(n: u64) -> bool {
     let s = (n - 1).trailing_zeros();
     let d = n >> s;
@@ -62,7 +62,7 @@ pub fn is_strong_probable_prime(n: u64) -> bool {
 
 /// Strong Lucas probable prime test.
 /// 
-/// Refer to https://en.wikipedia.org/wiki/Lucas_pseudoprime#Strong_Lucas_pseudoprimes for details.
+/// Refer to [Wikipedia: Lucas pseudoprime](https://en.wikipedia.org/wiki/Lucas_pseudoprime#Strong_Lucas_pseudoprimes) for details.
 pub fn is_lucas_probable_prime(n: u64) -> bool {
     if sqrt(n).pow(2) == n { return false; }
     let d = range_step_from(5, 2)
@@ -102,7 +102,7 @@ pub fn is_lucas_probable_prime(n: u64) -> bool {
 
 /// Baillie-PSW primality test.
 /// 
-/// Refer to https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test for details.
+/// Refer to [Wikipedia: Baillie-PSW primality test](https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test) for details.
 /// It is known that no counterexamples exist in the range of u64.
 pub fn is_prime(n: u64) -> bool {
     if n < 2 { return false; }
@@ -141,9 +141,10 @@ fn factorize_odd(n: u64) -> Vec<u64> {
 
 /// Prime factorization.
 /// 
-/// Uses Pollard's rho algorithm internally. Refer to https://en.wikipedia.org/wiki/Pollard%27s_rho_algorithm for details.
+/// Uses Pollard's rho algorithm internally. Refer to [Wikipedia: Pollard's rho algorithm](https://en.wikipedia.org/wiki/Pollard%27s_rho_algorithm) for details.
 /// "The rare special case" of failing with the default setting (initial value 2, increment by 1) is handled by trying
-/// two more settings of (2, -1) and (3, 1).
+/// some more hardcoded settings of (2, -1), (3, 1), and (3, 2). Currently **panics** if all settings fail.
+/// This will be patched when a failing input is found.
 pub fn factorize(n: u64) -> Vec<u64> {
     let twos = n.trailing_zeros() as usize;
     let mut factor_2s = vec![2; twos];
@@ -195,8 +196,8 @@ impl Ord for PythagoreanTriplet {
 
 /// An iterator that infinitely generates all primitive Pythagorean triplets.
 /// 
-/// See https://en.wikipedia.org/wiki/Tree_of_primitive_Pythagorean_triples for details.
-/// This can also be used to generate any Pythagorean-like triplets in the form of a^2 + b^2 = c^2 + k,
+/// See [Wikipedia: Tree of primitive Pythagorean triples](https://en.wikipedia.org/wiki/Tree_of_primitive_Pythagorean_triples) for details.
+/// This can also be used to generate any Pythagorean-like triplets in the form of `a^2 + b^2 = c^2 + k`,
 /// by giving a suitable initial triple.
 /// This iterator internally uses a BinaryHeap of a 3-tuple (a, b, c) with custom sorting order,
 /// namely the inverted order of (c, a, b).
@@ -257,6 +258,11 @@ fn extended_gcd(a: u64, b: u64) -> (u64, u64, u64) {
     (gcd as u64, a_coeff as u64, b_coeff as u64)
 }
 
+/// Chinese remainder theorem for two moduli.
+/// 
+/// Returns the smallest integer x which satisfies `x == a1 (mod m1)` and `x == a2 (mod m2)`.
+/// 
+/// **Panics** if m1 and m2 are not coprime, even if the system is solvable.
 pub fn chinese_remainder(a1: u64, m1: u64, a2: u64, m2: u64) -> u64 {
     let (gcd, n1, n2) = extended_gcd(m1, m2);
     if gcd != 1 {

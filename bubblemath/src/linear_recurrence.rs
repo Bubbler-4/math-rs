@@ -3,6 +3,7 @@ use num::BigUint;
 
 /// Berlekamp-Massey algorithm to find the minimal recurrence relation of a given sequence under a field.
 /// 
+/// Refer to [Wikipedia: Berlekamp-Massey algorithm](https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm) for basic information.
 /// Assumes that `modulo` is a prime under `2^31`, and every value in the given sequence is less than `modulo`.
 /// The implementation is not very clean because it is almost directly ported from
 /// [koosaga's C++ implementation for competitive programming](https://gist.github.com/koosaga/d4afc4434dbaa348d5bef0d60ac36aa4).

@@ -1,6 +1,6 @@
 # Bubblemath
 
-A collection of mathematical algorithms in Rust
+A collection of mathematical algorithms in pure Rust
 
 ## Notes
 
