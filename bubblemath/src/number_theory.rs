@@ -4,7 +4,7 @@ use num::iter::*;
 use itertools::Itertools;
 
 /// Modulo multiplication; `x*y mod m`.
-fn mul_mod(x: u64, y: u64, m: u64) -> u64 {
+pub fn mul_mod(x: u64, y: u64, m: u64) -> u64 {
     (x as u128 * y as u128 % m as u128) as u64
 }
 
@@ -153,6 +153,23 @@ pub fn factorize(n: u64) -> Vec<u64> {
     factor_2s
 }
 
+/// Divisor sigma function, which includes the count and sum of divisors.
+/// 
+/// Refer to [Wikipedia: Divisor function](https://en.wikipedia.org/wiki/Divisor_function) for details.
+/// `divisor_sigma(n, k)` is the sum of k-th power of all divisors of n.
+/// The count of divisors of n can be found by giving `k = 0`, and the sum by giving `k = 1`.
+/// 
+/// Implemented using the prime factorization function and the formula given on the Wikipedia page.
+pub fn divisor_sigma(n: u64, k: u32) -> u64 {
+    let fac = factorize(n);
+    let p_e_form = fac.iter().dedup_with_count();
+    if k == 0 {
+        p_e_form.map(|(e, _)| e as u64 + 1).product()
+    } else {
+        p_e_form.map(|(e, p)| (p.pow(k * (e as u32 + 1)) - 1) / (p.pow(k) - 1)).product()
+    }
+}
+
 /// Tests if the given number is palindrome in the given base.
 pub fn is_palindrome(n: u64, base: u64) -> bool {
     let mut cur_n = n;
@@ -177,6 +194,18 @@ pub fn nth_prime(n: u64) -> u64 {
     x
 }
 
+use num::integer::div_ceil;
+
+/// An O(poly(log m)) algorithm to find the smallest x that satisfies `left <= a*x <= right (mod m)`.
+pub fn mod_inv_range(a: u64, left: u64, right: u64, modulo: u64) -> u64 {
+    if left == 0 { return 0; }
+    let (a, left, right) = if 2 * a > modulo { (modulo-a, modulo-right, modulo-left) } else { (a, left, right) };
+    let cc_1 = div_ceil(left, a);
+    if a * cc_1 <= right { return cc_1; }
+    let cc_2 = mod_inv_range(a - modulo % a, left % a, right % a, a);
+    div_ceil(left as u128 + modulo as u128 * cc_2 as u128, a as u128) as u64
+}
+
 use std::collections::BinaryHeap;
 use std::iter::Iterator;
 
@@ -194,6 +223,8 @@ impl Ord for PythagoreanTriplet {
     }
 }
 
+/// **Deprecated.** Please use PythagoreanTripletGenerator2 instead.
+/// 
 /// An iterator that infinitely generates all primitive Pythagorean triplets.
 /// 
 /// See [Wikipedia: Tree of primitive Pythagorean triples](https://en.wikipedia.org/wiki/Tree_of_primitive_Pythagorean_triples) for details.
@@ -204,9 +235,15 @@ impl Ord for PythagoreanTriplet {
 /// Therefore, in order to get a useful result, it is recommended to cut the iterator
 /// with a condition on c (e.g. using take_while), and then do more computation on it.
 /// Also note that the heap will contain 2n+1 items after n items are produced.
+#[deprecated(
+    since = "0.1.1",
+    note = "Please use PythagoreanTripletGenerator2 instead"
+)]
 pub struct PythagoreanTripletGenerator {
     heap: BinaryHeap<PythagoreanTriplet>,
 }
+
+#[allow(deprecated)]
 impl Iterator for PythagoreanTripletGenerator {
     type Item = (u64, u64, u64);
     fn next(&mut self) -> Option<(u64, u64, u64)> {
@@ -222,10 +259,55 @@ impl Iterator for PythagoreanTripletGenerator {
     }
 }
 
+use std::collections::VecDeque;
+
+/// An iterator that generates all primitive Pythagorean triplets which satisfy a given condition.
+/// 
+/// See [Wikipedia: Tree of primitive Pythagorean triples](https://en.wikipedia.org/wiki/Tree_of_primitive_Pythagorean_triples) for details.
+/// This can also be used to generate any Pythagorean-like triplets in the form of `a^2 + b^2 = c^2 + k`,
+/// by giving a suitable initial triple.
+/// This iterator internally uses a VecDeque of a 3-tuple (a, b, c).
+/// Note that the deque will contain at most 2n+1 items after n items are produced.
+pub struct PythagoreanTripletGenerator2<F>
+    where F: Fn(u64, u64, u64) -> bool
+{
+    deque: VecDeque<(u64, u64, u64)>,
+    take_condition: F,
+}
+impl<F> Iterator for PythagoreanTripletGenerator2<F>
+    where F: Fn(u64, u64, u64) -> bool
+{
+    type Item = (u64, u64, u64);
+    fn next(&mut self) -> Option<(u64, u64, u64)> {
+        if let Some(ret) = self.deque.pop_front() {
+            let (a, b, c) = ret;
+            let (a2, b2, c2) = (a + 2 * c - 2 * b, 2 * a + 2 * c - b, 2 * a + 3 * c - 2 * b);
+            if (self.take_condition)(a2, b2, c2) {
+                self.deque.push_back((a2, b2, c2));
+            }
+            let (a2, b2, c2) = (a + 2 * c + 2 * b, 2 * a + 2 * c + b, 2 * a + 3 * c + 2 * b);
+            if (self.take_condition)(a2, b2, c2) {
+                self.deque.push_back((a2, b2, c2));
+            }
+            let (a2, b2, c2) = (2 * b + 2 * c - a, b + 2 * c - 2 * a, 2 * b + 3 * c - 2 * a);
+            if (self.take_condition)(a2, b2, c2) {
+                self.deque.push_back((a2, b2, c2));
+            }
+            Some((a, b, c))
+        }
+        else { None }
+    }
+}
+
 /// Creates a Pythagorean-like triplet generator with a custom starting triple.
 /// 
 /// It is guaranteed that all triples emitted share the value of a^2 + b^2 - c^2.
 /// Also, if gcd(a, b, c) = 1, such a property is preserved across all triples.
+#[deprecated(
+    since = "0.1.1",
+    note = "Please use pythagorean_like_triples2 instead"
+)]
+#[allow(deprecated)]
 pub fn pythagorean_like_triples(a: u64, b: u64, c: u64) -> PythagoreanTripletGenerator {
     let mut heap: BinaryHeap<_> = BinaryHeap::new();
     heap.push(PythagoreanTriplet(a, b, c));
@@ -233,8 +315,32 @@ pub fn pythagorean_like_triples(a: u64, b: u64, c: u64) -> PythagoreanTripletGen
 }
 
 /// Creates a Pythagorean triplet generator with the starting triple of (3, 4, 5).
+#[deprecated(
+    since = "0.1.1",
+    note = "Please use pythagorean_triples2 instead"
+)]
+#[allow(deprecated)]
 pub fn pythagorean_triples() -> PythagoreanTripletGenerator {
     pythagorean_like_triples(3, 4, 5)
+}
+
+/// Creates a Pythagorean-like triplet generator with a custom starting triple and a filtering function.
+/// 
+/// It is guaranteed that all triples emitted share the value of a^2 + b^2 - c^2.
+/// Also, if gcd(a, b, c) = 1, such a property is preserved across all triples.
+pub fn pythagorean_like_triples2<F>(a: u64, b: u64, c: u64, f: F) -> PythagoreanTripletGenerator2<F>
+    where F: Fn(u64, u64, u64) -> bool
+{
+    let mut deque: VecDeque<_> = VecDeque::new();
+    deque.push_back((a, b, c));
+    PythagoreanTripletGenerator2 { deque, take_condition: f }
+}
+
+/// Creates a Pythagorean triplet generator with the starting triple of (3, 4, 5) and a filtering function.
+pub fn pythagorean_triples2<F>(f: F) -> PythagoreanTripletGenerator2<F>
+    where F: Fn(u64, u64, u64) -> bool
+{
+    pythagorean_like_triples2(3, 4, 5, f)
 }
 
 fn extended_gcd(a: u64, b: u64) -> (u64, u64, u64) {

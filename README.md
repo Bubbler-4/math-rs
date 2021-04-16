@@ -20,8 +20,10 @@ A collection of mathematical algorithms in pure Rust. Documentation is available
     * Integer factorization (Pollard's rho)
     * Next prime, n-th prime
     * Jacobi symbol
+    * Divisor sigma function
     * Iterator over Pythagorean triplets
     * Chinese remainder theorem for two moduli
+    * Algorithm to find minimal `x` satisfying `left <= a*x <= right (mod m)`
 * Linear recurrence
     * n-th term calculation (faster than matrix exponentiation by squaring)
     * Berlekamp-Massey algorithm (identifying linear recurrence modulo prime)
@@ -32,5 +34,5 @@ A collection of mathematical algorithms in pure Rust. Documentation is available
 
 Rust solution progress:
 
-* 1-20 (revisiting early problems)
-* 224, 258, 654
+* 1-24 (revisiting early problems)
+* 223, 224, 258, 654, 684, 686, 700
