@@ -22,6 +22,7 @@ A collection of mathematical algorithms in pure Rust. Documentation is available
     * Jacobi symbol
     * Divisor sigma function
     * Iterator over Pythagorean triplets
+    * Modular inverse
     * Chinese remainder theorem for two moduli
     * Algorithm to find minimal `x` satisfying `left <= a*x <= right (mod m)`
 * Linear recurrence
@@ -35,4 +36,4 @@ A collection of mathematical algorithms in pure Rust. Documentation is available
 Rust solution progress:
 
 * 1-24 (revisiting early problems)
-* 223, 224, 258, 654, 684, 686, 700
+* 223, 224, 258, 654, 684, 686, 700, 719

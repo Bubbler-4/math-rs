@@ -11,6 +11,7 @@ A collection of mathematical algorithms in pure Rust
     * Jacobi symbol
     * Divisor sigma function
     * Iterator over Pythagorean triplets
+    * Modular inverse
     * Chinese remainder theorem for two moduli
     * Algorithm to find minimal `x` satisfying `left <= a*x <= right (mod m)`
 * Linear recurrence

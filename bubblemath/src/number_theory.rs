@@ -364,6 +364,41 @@ fn extended_gcd(a: u64, b: u64) -> (u64, u64, u64) {
     (gcd as u64, a_coeff as u64, b_coeff as u64)
 }
 
+/// Modular inverse of a modulo m.
+/// 
+/// Returns the smallest non-negative integer x which satisfies `a*x == 1 (mod m)`.
+/// Also works when m is composite, as long as a and m are coprime.
+/// 
+/// **Panics** if a and m are not coprime.
+pub fn mod_inv(a: u64, m: u64) -> u64 {
+    let (gcd, c1, _) = extended_gcd(a, m);
+    if gcd != 1 {
+        panic!("a and m are not coprime");
+    }
+    c1
+}
+
+/// Modular inverses of 1..a modulo m.
+/// 
+/// The result is identical to `mod_inv` called with individual values, but `mod_inv_sieve` is
+/// expected to be faster since it uses constant number of division/modulo operations per entry.
+/// It uses the following modular identity:
+/// 
+/// ```
+/// p = qa + r
+/// r = -qa (mod p)
+/// inv(a) = -q * inv(r) (mod p)
+/// ```
+/// 
+/// Does not panic if `m` is not prime, but some entries may contain invalid values.
+pub fn mod_inv_sieve(a: u64, m: u64) -> Vec<u64> {
+    let mut invs: Vec<u64> = vec![1; a as usize + 1];
+    for i in 2..=a {
+        invs[i as usize] = m - m / i * invs[(m % i) as usize] % m;
+    }
+    invs
+}
+
 /// Chinese remainder theorem for two moduli.
 /// 
 /// Returns the smallest integer x which satisfies `x == a1 (mod m1)` and `x == a2 (mod m2)`.
